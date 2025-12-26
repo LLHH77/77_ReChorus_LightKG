@@ -107,7 +107,8 @@ python visual.py
 ## 项目核心架构
 
 ```bash
-ReChorus/
+77_ReChorus_LightKG/
+├── LightKG_dataset/
 ├── data/                         # ReChorus自带数据集
 ├── docs/                         # ReChorus框架文件
 ├── model/                        # 模型权重入口
@@ -129,27 +130,14 @@ ReChorus/
 │             └── LightKG.py      # LightKG类
 │   ├── utils/
 │   ├── ablation_argument_draw.ipynb
-│   └── main.py                  # 主函数入口
+│   ├── case.py
+│   ├── main.py                   # 主函数入口
+│   ├── pipeline.py
+│   └── visual.py
 │
-└── ReadMe.md
+└── README.md
 ``` 
 
-```bash
-LightKG/
-├── LightKG.py                   # 原论文模型实现
-├── main.py                      # 原论文训练入口
-├── model/                       # 其它对比模型
-│   ├── CFKG.py
-│   ├── KGAT.py
-│   ├── ······
-├── yaml/                        # 原论文参数配置文件
-│   ├── lastfm_LightKG.yaml
-│   ├── ml-1m_LightKG.yaml
-│   ├── book-crossing_LightKG.yaml
-│   └── Amazon-book_LightKG.yaml
-│
-└── dataset/                     # 数据集目录
-``` 
 ## 引用
 
 ```bash
