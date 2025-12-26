@@ -1,6 +1,9 @@
 # datasets
 data/**
 
+# 我们修改了ipynb文件，因为旧的有很多bug
+!data/MovieLens_1M/MovieLens-1M.ipynb
+
 # models / checkpoints
 model/**
 
