@@ -1,10 +1,10 @@
-## LightKG based on ReChorus项目解析
----
+# LightKG based on ReChorus项目解析
+ by **赵景琦&&廖桦淇**
+
 项目基于[ReChorus](https://github.com/THUwangcy/ReChorus)框架，复现了LightKG模型，并完成了新框架上的消融实验、对比实验、超参实验和案例分析。LightKG 是一个简约而强大的、基于图神经网络（GNN）的知识图谱感知推荐系统，旨在提高推荐的准确性和训练效率，特别是在交互稀疏的场景下。
 
 > 原论文：[LightKG: Efficient Knowledge-Aware Recommendations with Simplified GNN Architecture ](https://dl.acm.org/doi/abs/10.1145/3711896.3737026)
-###  LightKG复现环境配置
----
+##  LightKG复现环境配置
 
 已在 Python 3.9 和 Ubuntu 20.04 上经过测试
 
@@ -22,15 +22,13 @@ pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.0+c
 ```bash
 pip install "numpy<2.0" "recbole==1.1.1" lightgbm xgboost ray thop
 ```
-###  数据集准备
----
+##  数据集准备
 
 MovieLens_1M数据集需要在项目运行前进行处理，进入以下目录`run all`指定文件即可
 ```bash
 cd ReChorus/data/MovieLens_1M     # 运行MovieLens_1M.ipynb
 ```
-###  LightKG复现命令
----
+##  LightKG复现命令
 
 进入到指定目录下
 ```bash
@@ -84,8 +82,7 @@ python -u main.py \
   2>&1 | tee ../log/lightkg_ml-1m_$(date +"%Y%d_%H%M%S").log
 ```
 ！！！如果出现cuda out of memory，可以把batch_size调小试试，但是真的不是代码问题😭
-### 运行实验代码
----
+## 运行实验代码
 
 进入到指定目录下
 ```bash
@@ -107,8 +104,7 @@ python case.py
 ```
 python visual.py
 ```
-### 项目核心架构
----
+## 项目核心架构
 
 ```bash
 ReChorus/
@@ -154,8 +150,8 @@ LightKG/
 │
 └── dataset/                     # 数据集目录
 ``` 
-### 引用
----
+## 引用
+
 ```bash
 @inproceedings{li2024rechorus2,
   title={ReChorus2. 0: A Modular and Task-Flexible Recommendation Library},
