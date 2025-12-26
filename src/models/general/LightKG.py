@@ -65,13 +65,13 @@ class LightKG(GeneralModel):
     def _build_graphs(self, corpus):
         self._build_interaction_matrix(corpus)
         self._build_kg_graph(corpus)
-        self._build_ckg()  # 修改：现在不返回 sparse tensor，而是设置 self.CKG_indices 和 self.CKG_values
+        self._build_ckg()  # 不返回 sparse tensor，而是设置 self.CKG_indices 和 self.CKG_values
         print("CKG after build...")
-        print("CKG max relation id after build:", self.CKG_values.max().item())  # 修改：直接用 self.CKG_values
+        print("CKG max relation id after build:", self.CKG_values.max().item()) 
         self.Degree = self._build_degree_matrix()
         self.Similarity_matrix = self._build_similarity_matrix()
-        print("CKG object id:", id(self))  # 修改：无需 CKG object id
-        print("CKG storage ptr:", self.CKG_values.data_ptr())  # 修改：用 values 的 ptr
+        print("CKG object id:", id(self))
+        print("CKG storage ptr:", self.CKG_values.data_ptr()) 
 
     def _build_interaction_matrix(self, corpus):
         rows, cols = [], []
@@ -114,23 +114,21 @@ class LightKG(GeneralModel):
         all_tail = np.concatenate([inter_tail + self.user_num, inter_head, kg_bi_t + self.user_num])
         all_rel = np.concatenate([u_i_rel, i_u_rel, kg_bi_r])
         
-        # 可选：去重（如果不需要多重边）
+        # 如果不需要多重边，去重
         # unique_edges = set(zip(all_head, all_tail, all_rel))
         # if unique_edges:
         #     all_head, all_tail, all_rel = zip(*unique_edges)
         # all_head, all_tail, all_rel = np.array(all_head), np.array(all_tail), np.array(all_rel)
         
-        self.CKG_indices = torch.tensor(np.stack([all_head, all_tail]), dtype=torch.long).to(self.device)  # 修改：存储 raw indices
-        self.CKG_values = torch.tensor(all_rel, dtype=torch.long).to(self.device)  # 修改：存储 raw values
-        self.ckg_size = torch.Size([self.n_entities + self.user_num, self.n_entities + self.user_num])  # 修改：存储 size
+        self.CKG_indices = torch.tensor(np.stack([all_head, all_tail]), dtype=torch.long).to(self.device)  # 存储 raw indices
+        self.CKG_values = torch.tensor(all_rel, dtype=torch.long).to(self.device)  # 存储 raw values
+        self.ckg_size = torch.Size([self.n_entities + self.user_num, self.n_entities + self.user_num])
         
         print("Building CKG...")
-        print("CKG nnz:", len(self.CKG_values))  # 修改：打印 nnz
+        print("CKG nnz:", len(self.CKG_values)) 
         print("CKG indices max:", self.CKG_indices.max().item())
         print("CKG max relation id:", self.CKG_values.max().item())
         print("CKG storage ptr:", self.CKG_values.data_ptr())
-        
-        # 无需返回
 
     def _build_degree_matrix(self):
         inter_idx = torch.tensor(np.stack([self.inter.row, self.inter.col]), dtype=torch.long)
@@ -156,7 +154,7 @@ class LightKG(GeneralModel):
         return deg.to(self.device)
 
     def _build_similarity_matrix(self):
-        ckg_idx = self.CKG_indices  # 修改：直接用 self.CKG_indices
+        ckg_idx = self.CKG_indices
         mask = (ckg_idx[0] < self.user_num + self.item_num) & (ckg_idx[1] < self.user_num + self.item_num)
         filt_idx = ckg_idx[:, mask]
         
@@ -180,7 +178,7 @@ class LightKG(GeneralModel):
     def _forward(self): 
         # print("Relation Embedding Size:", self.relation_embedding.num_embeddings)
         # print("n_relations:", self.n_relations)
-        assert self.CKG_values.max().item() < self.relation_embedding.num_embeddings  # 修改：用 self.CKG_values
+        assert self.CKG_values.max().item() < self.relation_embedding.num_embeddings  # 用 self.CKG_values
         
         u_e = self.user_embedding.weight
         e_e = self.entity_embedding.weight
@@ -192,12 +190,12 @@ class LightKG(GeneralModel):
         layer_embs = [init_emb]
         
         # Relation Embedding Lookup Check
-        ckg_vals = self.CKG_values  # 修改：直接用 self.CKG_values
+        ckg_vals = self.CKG_values 
         if ckg_vals.max() >= self.relation_embedding.num_embeddings:
              print(f"!!! ERROR: CKG Value {ckg_vals.max()} >= RelEmb Size {self.relation_embedding.num_embeddings}")
 
         rel_emb = self.relation_embedding(ckg_vals).view(-1)
-        edge_idx = self.CKG_indices  # 修改：直接用 self.CKG_indices
+        edge_idx = self.CKG_indices  
         
         if self.Degree.device != edge_idx.device:
             self.Degree = self.Degree.to(edge_idx.device)
