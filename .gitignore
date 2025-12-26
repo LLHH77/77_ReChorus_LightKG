@@ -1,10 +1,28 @@
-.ipynb_checkpoints/
-*.xlsx
-.idea/
-__pycache__/
+# datasets
+data/**
+
+# models / checkpoints
+model/**
+
+# logs
+log/**
+
+# 系统缓存
 .DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+
+# Python 缓存
+__pycache__/
 *.pyc
-figure/
-doc/
-model/
-search.py
+*.pyo
+*.pyd
+.pytest_cache/
+
+*.pkl
+*.pt
+
+# 日志/压缩包
+*.log
+*.zip
+*.rar

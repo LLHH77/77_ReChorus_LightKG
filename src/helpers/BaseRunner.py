@@ -42,12 +42,12 @@ class BaseRunner(object):
 							help='pin_memory in DataLoader')
 		parser.add_argument('--topk', type=str, default='5,10,20,50',
 							help='The number of items recommended to each user.')
-		parser.add_argument('--metric', type=str, default='NDCG,HR',
-							help='metrics: NDCG, HR')
+		parser.add_argument('--metric', type=str, default='NDCG,HR,PRECISION,MRR',
+							help='metrics: NDCG, HR, MRR, HIT')
 		parser.add_argument('--main_metric', type=str, default='',
 							help='Main metric to determine the best model.')
 		return parser
-
+    # zjq: 原来的代码！
 	@staticmethod
 	def evaluate_method(predictions: np.ndarray, topk: list, metrics: list) -> Dict[str, float]:
 		"""
@@ -69,13 +69,23 @@ class BaseRunner(object):
 			hit = (gt_rank <= k)
 			for metric in metrics:
 				key = '{}@{}'.format(metric, k)
+				if metric in ['HR', 'NDCG', 'MRR', 'PRECISION']:
+					val = hit.mean()
 				if metric == 'HR':
 					evaluations[key] = hit.mean()
 				elif metric == 'NDCG':
 					evaluations[key] = (hit / np.log2(gt_rank + 1)).mean()
+				elif metric == 'PRECISION': 
+					val /= k
+					evaluations[key] = val
+				elif metric == 'MRR':
+					rr = 1.0 / gt_rank
+					rr[gt_rank > k] = 0.0
+					evaluations[key] = rr.mean()
 				else:
 					raise ValueError('Undefined evaluation metric: {}.'.format(metric))
 		return evaluations
+	
 
 	def __init__(self, args):
 		self.train_models = args.train
@@ -116,6 +126,7 @@ class BaseRunner(object):
 	def train(self, data_dict: Dict[str, BaseModel.Dataset]):
 		model = data_dict['train'].model
 		main_metric_results, dev_results = list(), list()
+		train_times = list()  # [Modified] Record epoch times
 		self._check_time(start=True)
 		try:
 			for epoch in range(self.epoch):
@@ -128,6 +139,7 @@ class BaseRunner(object):
 					logging.info("Loss is Nan. Stop training at %d."%(epoch+1))
 					break
 				training_time = self._check_time()
+				train_times.append(training_time)  # [Modified]
 
 				# Observe selected tensors
 				if len(model.check_list) > 0 and self.check_epoch > 0 and epoch % self.check_epoch == 0:
@@ -169,6 +181,9 @@ class BaseRunner(object):
 		best_epoch = main_metric_results.index(max(main_metric_results))
 		logging.info(os.linesep + "Best Iter(dev)={:>5}\t dev=({}) [{:<.1f} s] ".format(
 			best_epoch + 1, utils.format_metric(dev_results[best_epoch]), self.time[1] - self.time[0]))
+		if len(train_times) > 0:
+			logging.info("[TIMER] Avg Train Time: {:.4f} s".format(sum(train_times) / len(train_times)))
+			logging.info("[TIMER] Total Train Time: {:.4f} s".format(sum(train_times)))
 		model.load_model()
 
 	def fit(self, dataset: BaseModel.Dataset, epoch=-1) -> float:
@@ -183,7 +198,6 @@ class BaseRunner(object):
 						collate_fn=dataset.collate_batch, pin_memory=self.pin_memory)
 		for batch in tqdm(dl, leave=False, desc='Epoch {:<3}'.format(epoch), ncols=100, mininterval=1):
 			batch = utils.batch_to_gpu(batch, model.device)
-
 			# randomly shuffle the items to avoid models remembering the first item being the target
 			item_ids = batch['item_id']
 			# for each row (sample), get random indices and shuffle the original items
@@ -256,6 +270,9 @@ class BaseRunner(object):
 		Construct the final result string before/after training
 		:return: test result string
 		"""
+		t_infer_start = time()  # [Modified]
 		result_dict = self.evaluate(dataset, self.topk, self.metrics)
+		t_infer_end = time()    # [Modified]
+		logging.info("[TIMER] Inference Time: {:.4f} s".format(t_infer_end - t_infer_start))
 		res_str = '(' + utils.format_metric(result_dict) + ')'
 		return res_str

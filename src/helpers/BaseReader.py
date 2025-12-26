@@ -13,7 +13,7 @@ from utils import utils
 class BaseReader(object):
     @staticmethod
     def parse_data_args(parser):
-        parser.add_argument('--path', type=str, default='data/',
+        parser.add_argument('--path', type=str, default='/root/autodl-tmp/ReChorus/data/',
                             help='Input data dir.')
         parser.add_argument('--dataset', type=str, default='Grocery_and_Gourmet_Food',
                             help='Choose a dataset.')

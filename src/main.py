@@ -159,10 +159,11 @@ if __name__ == '__main__':
 							 help='Model mode(i.e., suffix), for context-aware models to select "CTR" or "TopK" Ranking task;\
             						for general/seq models to select Normal (no suffix, model_mode="") or "Impression" setting;\
                   					for rerankers to select "General" or "Sequential" Baseranker.')
+	init_parser.add_argument('--reader', type=str, default='RecBoleReader', help='Choose a model to run.')
 	init_args, init_extras = init_parser.parse_known_args()
 	
 	model_name = eval('{0}.{0}{1}'.format(init_args.model_name,init_args.model_mode))
-	reader_name = eval('{0}.{0}'.format(model_name.reader))  # model chooses the reader
+	reader_name = eval('{0}.{0}'.format(init_args.reader))  # model chooses the reader
 	runner_name = eval('{0}.{0}'.format(model_name.runner))  # model chooses the runner
 
 	# Args

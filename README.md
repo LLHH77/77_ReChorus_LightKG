@@ -1,154 +1,138 @@
-![logo](./docs/_static/logo2.0.png)
----
-
-![PyPI - Python Version](https://img.shields.io/badge/pyhton-3.10-blue) 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-![GitHub repo size](https://img.shields.io/github/repo-size/THUwangcy/ReChorus) 
-[![arXiv](https://img.shields.io/badge/arXiv-ReChorus-%23B21B1B)](https://arxiv.org/abs/2405.18058)
-
-
-ReChorus2.0 is a modular and task-flexible PyTorch library for recommendation, especially for research purpose. It aims to provide researchers a flexible framework to implement various recommendation tasks, compare different algorithms, and adapt to diverse and highly-customized data inputs. We hope ReChorus2.0 can serve as a more convinient and user-friendly tool for researchers, so as to form a "Chorus" of recommendation tasks and algorithms.
-
-The previous version of ReChorus can be found at [ReChorus1.0](https://github.com/THUwangcy/ReChorus/tree/ReChorus1.0)
-
-## What's New in ReChorus2.0:
-
-- **New Tasks**: Newly supporting the context-aware top-k recommendation and CTR prediction task. Newly supporting the Impression-based re-ranking task.
-- **New Models**: Adding Context-aware Recommenders and Impression-based Re-ranking Models. Listed below.
-- **New dataset format**: Supporting various contextual feature input. Customizing candidate item lists in training and evaluation. Supporting variable length positive and negative samples.
-- **Task Flexible**: Each model can serve for different tasks, and task switching is conveniently achieved by altering *model mode*.
-  
-
-This framework is especially suitable for researchers to choose or implement desired experimental settings, and compare algorithms under the same setting. The characteristics of our framework can be summarized as follows:
-
-- **Modular**: primary functions modularized into distinct components: runner, model, and reader, facilitating code comprehension and integration of new features.
-  
-- **Swift**: concentrate on your model design ***in a single file*** and implement new models quickly.
-
-- **Efficient**: multi-thread batch preparation, special implementations for the evaluation, and around 90% GPU utilization during training for deep models.
-
-- **Flexible**: implement new readers or runners for different datasets and experimental settings, and each model can be assigned with specific helpers.
-
-## Structure
-
-Generally, ReChorus decomposes the whole process into three modules:
-
-- [Reader](https://github.com/THUwangcy/ReChorus/tree/master/src/helpers/BaseReader.py): read dataset into DataFrame and append necessary information to each instance
-- [Runner](https://github.com/THUwangcy/ReChorus/tree/master/src/helpers/BaseRunner.py): control the training process and model evaluation, including evaluation metrics.
-- [Model](https://github.com/THUwangcy/ReChorus/tree/master/src/models/BaseModel.py): define how to generate output (predicted labels or ranking scores) and prepare batches.
-
-![logo](./docs/_static/module_new.png)
-
-## Requirements & Getting Started
-See in the doc for [Requirements & Getting Started](https://github.com/THUwangcy/ReChorus/tree/master/docs/Getting_Started.md).
-
-## Tasks & Settings
-
-The tasks & settings are listed below
-
-<table>
-<tr><th> Tasks </th><th> Runner </th><th> Metrics </th><th> Loss Functions</th><th> Reader </th><th> BaseModel </th><th> Models</th><th> Model Modes </th></tr>
-<tr><td rowspan="3"> Top-k Recommendation </td><td rowspan="3"> BaseRunner </td><td rowspan="3"> HitRate NDCG </td><td rowspan="3"> BPR </td><td> BaseReader </td><td> BaseModel.GeneralModel </td><td> general </td><td> '' </td></tr>
-<tr><td> SeqReader </td><td> BaseModel.SequentialModel </td><td> sequential </td><td> '' </td></tr>
-<tr><td> ContextReader </td><td> BaseContextModel.ContextModel </td><td> context </td><td> 'TopK' </td></tr>
-<tr><td> CTR Prediction </td><td> CTRRunner </td><td> AUC Logloss </td><td> BPR, BCE </td><td> ContextReader </td><td> BaseContextModel.ContextCTRModel </td><td> context </td><td> 'CTR' </td></tr>
-<tr><td rowspan="4"> Impression-based Ranking </td><td rowspan="4"> ImpressionRunner </td><td rowspan="4"> HitRate NDCG MAP </td><td rowspan="4"> List-level BPR, Listnet loss, Softmax cross entropy loss, Attention rank </td><td> ImpressionReader </td><td> BaseImpressionModel.ImpressionModel </td><td> general </td><td> 'Impression' </td></tr>
-<tr><td> ImpressionSeqReader </td><td> BaseImpressionModel.ImpressionSeqModel </td><td> sequential </td><td> 'Impression' </td></tr>
-<tr><td> ImpressionReader </td><td> BaseRerankerModel.RerankModel </td><td> reranker </td><td> 'General' </td></tr>
-<tr><td> ImpressionSeqReader </td><td> BaseRerankerModel.RerankSeqModel </td><td> reranker </td><td> 'Sequential' </td></tr>
-</table>
-
-
-## Arguments
-See in the doc for [Main Arguments](https://github.com/THUwangcy/ReChorus/tree/master/docs/Main_Arguments.md).
-
-## Models
-See in the doc for [Supported Models](https://github.com/THUwangcy/ReChorus/tree/master/docs/Supported_Models.md).
-
-Experimental results and corresponding configurations are shown in [Demo Script Results](https://github.com/THUwangcy/ReChorus/tree/master/docs/demo_scripts_results/README.md).
-
-
-## Citation
-
-**If you find ReChorus is helpful to your research, please cite either of the following papers. Thanks!**
-
-```
-@inproceedings{li2024rechorus2,
-  title={ReChorus2. 0: A Modular and Task-Flexible Recommendation Library},
-  author={Li, Jiayu and Li, Hanyu and He, Zhiyu and Ma, Weizhi and Sun, Peijie and Zhang, Min and Ma, Shaoping},
-  booktitle={Proceedings of the 18th ACM Conference on Recommender Systems},
-  pages={454--464},
-  year={2024}
-}
-```
-```
-@inproceedings{wang2020make,
-  title={Make it a chorus: knowledge-and time-aware item modeling for sequential recommendation},
-  author={Wang, Chenyang and Zhang, Min and Ma, Weizhi and Liu, Yiqun and Ma, Shaoping},
-  booktitle={Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval},
-  pages={109--118},
-  year={2020}
-}
-```
-```
-@article{王晨阳2021rechorus,
-  title={ReChorus: 一个综合, 高效, 易扩展的轻量级推荐算法框架},
-  author={王晨阳 and 任一 and 马为之 and 张敏 and 刘奕群 and 马少平},
-  journal={软件学报},
-  volume={33},
-  number={4},
-  pages={0--0},
-  year={2021}
-}
-```
-
-This is also our public implementation for the following papers (codes and datasets to reproduce the results can be found at corresponding branch):
-
-
-- *Chenyang Wang, Min Zhang, Weizhi Ma, Yiqun Liu, and Shaoping Ma. [Make It a Chorus: Knowledge- and Time-aware Item Modeling for Sequential Recommendation](http://www.thuir.cn/group/~mzhang/publications/SIGIR2020Wangcy.pdf). In SIGIR'20.*
+## LightKG based on ReChorus项目解析
+by **赵景琦&廖桦淇**
+###  LightKG复现环境配置
 
 ```bash
-git clone -b SIGIR20 https://github.com/THUwangcy/ReChorus.git
+# 创建指定版本的conda环境
+conda create -n LKGenv python=3.9
+
+# 激活conda环境
+conda activate LKGenv
+
+# 安装指定版本的包！注意顺序很重要，必须先装torch
+pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu118
+
+# 再装torch-scatter
+pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.0+cu118.html
+
+# 其它包，注意限制版本
+pip install "numpy<2.0" "recbole==1.1.1" lightgbm xgboost ray thop
 ```
 
-- *Chenyang Wang, Weizhi Ma, Min Zhang, Chong Chen, Yiqun Liu, and Shaoping Ma. [Towards Dynamic User Intention: Temporal Evolutionary Effects of Item Relations in Sequential Recommendation](https://chenchongthu.github.io/files/TOIS-KDA-wcy.pdf). In TOIS'21.*
+###  LightKG复现命令
 
 ```bash
-git clone -b TOIS21 https://github.com/THUwangcy/ReChorus.git
-```
+# 激活conda环境
+conda activate LKGenv
 
-- *Chenyang Wang, Weizhi Ma, Chong, Chen, Min Zhang, Yiqun Liu, and Shaoping Ma. [Sequential Recommendation with Multiple Contrast Signals](https://dl.acm.org/doi/pdf/10.1145/3522673). In TOIS'22.*
+# 切换目录
+cd ReChorus/src
+
+# 运行命令，注意因为ReChorus框架是静态参数配置故命令较长
+# 当前为运行 【LightKG原论文数据集】 命令
+python -u main.py \
+  --model_name LightKG\
+  --dataset  lastfm\                  # 指定数据集
+  --path /LightKG/dataset \           # 数据集路径，【请根据实际情况调整为绝对路径】
+  --recbole_format 1 \                # 因为是读取原论文数据集所以需添加该参数
+  --test_all 1 \                      # 全量测试,与原论文数据集训练方式一致
+  --emb_size 64 \                     # 以下全为训练参数
+  --n_layers 2 \
+  --lr 0.0005 \
+  --l2 0.00005 \
+  --mess_dropout 0.1 \
+  --cos_loss 1 \
+  --user_loss 1e-08 \
+  --item_loss 1e-07 \
+  --early_stop 20 \
+  --batch_size 2048 \
+  --epoch 200 \
+  --num_neg 10 \
+  --metric NDCG,HR,MRR,HIT,PRECISION \       #你希望输出的指标
+  2>&1 | tee ../log/lightkg_lastfm_$(date +"%Y%m%d_%H%M%S").log   
+
+# 当前为运行 【ReChorus框架数据集】 命令
+python -u main.py \
+  --model_name LightKG \              # 指定数据集
+  --dataset MovieLens_1M \
+  --reader LKGReader \                # 指定reader
+  --emb_size 64 \                     # 以下全为训练参数
+  --n_layers 2 \
+  --lr 0.0005 \
+  --l2 0.00005 \
+  --mess_dropout 0.1 \
+  --cos_loss 1 \
+  --user_loss 1e-08 \
+  --item_loss 1e-07 \
+  --early_stop 10 \
+  --batch_size 2048 \
+  --epoch 100 \
+  --num_neg 10 \
+  --metric NDCG,HR,MRR,HIT,PRECISION \       #你希望输出的指标
+  2>&1 | tee ../log/lightkg_ml-1m_$(date +"%Y%d_%H%M%S").log
+```
+！！！如果出现cuda out of memory，可以把batch_size调小试试，但是真的不是代码问题😭
+
+### 运行实验代码
 
 ```bash
-git clone -b TOIS22 https://github.com/THUwangcy/ReChorus.git
-```
+# 进入到以下路径
+cd ReChorus/src
 
-- *Chenyang Wang, Zhefan Wang, Yankai Liu, Yang Ge, Weizhi Ma, Min Zhang, Yiqun Liu, Junlan Feng, Chao Deng, and Shaoping Ma. [Target Interest Distillation for Multi-Interest Recommendation](). In CIKM'22.*
+# 1. 消融实验 && 超参实验
+# 进入ablation_argument_draw.ipynb文件运行
+
+# 2. 对比试验
+python pipeline.py
+
+# 3. 案例分析
+python case.py
+
+# 4. 嵌入空间的语义表征可视化
+python visual.py
+```
+### 项目核心架构
 
 ```bash
-git clone -b CIKM22 https://github.com/THUwangcy/ReChorus.git
-```
-
-## Contact
-
-**ReChorus 1.0**: Chenyang Wang (THUwangcy@gmail.com)
-
-**ReChorus 2.0**: Jiayu Li (lijiayu997@gmail.com), Hanyu Li (l-hy12@outlook.com)
-
-<!-- MARKDOWN LINKS & IMAGES -->
-
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=flat-square
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=flat-square
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=flat-square
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=flat-square
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=flat-square
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
+ReChorus/
+├── data/                         # ReChorus自带数据集
+├── docs/                         # ReChorus框架文件
+├── model/                        # 模型权重入口
+│   ├── BPRMF
+│   ├── BUIR
+│   ├── LightKG                   # 我们的模型权重
+│   └── ······
+├── src/                       
+│   ├── helpers/
+│        ├── BaseReader.py
+│        ├── RecBoleReader.py     # LightKG读取原数据集类
+│        ├── LightKGReader.py     # LightKG读取ReChorus自带数据集类
+│        ├── BaseRunner.py
+│        └── LightKGRunner.py     # LightKG训练类
+│   ├── log/
+│   ├── models/
+│        ├── BaseModel.py
+│        └── general
+│             └── LightKG.py      # LightKG类
+│   ├── utils/
+│   ├── ablation_argument_draw.ipynb
+│   └── main.py                  # 主函数入口
+│
+└── ReadMe.md
+``` 
+```bash
+LightKG/
+├── LightKG.py                   # 原论文模型实现
+├── main.py                      # 原论文训练入口
+├── model/                       # 其它对比模型
+│   ├── CFKG.py
+│   ├── KGAT.py
+│   ├── ······
+├── yaml/                        # 原论文参数配置文件
+│   ├── lastfm_LightKG.yaml
+│   ├── ml-1m_LightKG.yaml
+│   ├── book-crossing_LightKG.yaml
+│   └── Amazon-book_LightKG.yaml
+│
+└── dataset/                     # 数据集目录
+``` 
