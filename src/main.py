@@ -10,11 +10,11 @@ import torch
 
 from helpers import *
 from models.general import *
-from models.sequential import *
-from models.developing import *
-from models.context import *
-from models.context_seq import *
-from models.reranker import *
+# from models.sequential import *
+# from models.developing import *
+# from models.context import *
+# from models.context_seq import *
+# from models.reranker import *
 from utils import utils
 
 
@@ -55,7 +55,7 @@ def main():
 	logging.info('Device: {}'.format(args.device))
 
 	# Read data
-	corpus_path = os.path.join(args.path, args.dataset, model_name.reader+args.data_appendix+ '.pkl')
+	corpus_path = os.path.join(args.path, args.dataset, init_args.reader+args.data_appendix+ '.pkl')
 	if not args.regenerate and os.path.exists(corpus_path):
 		logging.info('Load corpus from {}'.format(corpus_path))
 		corpus = pickle.load(open(corpus_path, 'rb'))
