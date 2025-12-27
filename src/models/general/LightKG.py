@@ -9,7 +9,6 @@ from models.BaseModel import GeneralModel
 import logging
 
 class LightKG(GeneralModel):
-    reader = 'RecBoleReader'
     runner = 'LightKGRunner'
     extra_log_args = ['emb_size', 'n_layers', 'mess_dropout', 'cos_loss', 'user_loss', 'item_loss']
 
@@ -258,6 +257,7 @@ class LightKG(GeneralModel):
         node: Tensor of user indices, shape [B]
         return: Dense similarity matrix [B, B]
         """
+        node = node.view(-1).long()
         sim = self.Similarity_matrix.index_select(0, node)
         sim = sim.transpose(0, 1)
         sim = sim.index_select(0, node).to_dense()
@@ -272,7 +272,8 @@ class LightKG(GeneralModel):
         """
         p_node = p_node + self.user_num
         n_node = n_node + self.user_num
-
+        p_node = p_node.view(-1).long()
+        n_node = n_node.view(-1).long()
         sim = self.Similarity_matrix.index_select(0, p_node)
         sim = sim.transpose(0, 1)
         sim = sim.index_select(0, n_node).to_dense()
