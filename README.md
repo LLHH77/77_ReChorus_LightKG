@@ -20,88 +20,82 @@ pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.0+c
 
 3. 安装其它包，注意限制版本
 ```bash
-pip install "numpy<2.0" "recbole==1.1.1" lightgbm xgboost ray thop
+pip install "numpy<1.24" "recbole==1.1.1" lightgbm xgboost ray thop matplotlib seaborn scipy ipywidgets
 ```
 ##  数据集准备
 
 MovieLens_1M数据集需要在项目运行前进行处理，进入以下目录`run all`指定文件即可
 ```bash
-cd ReChorus/data/MovieLens_1M     # 运行MovieLens_1M.ipynb
+cd data/MovieLens_1M     # 运行MovieLens_1M.ipynb
+cd data/Grocery_and_Gourmet_Food    # 运行Amazon.ipynb(之后需要把映射文件和解压后的原文件拖至外层目录下)
+# ！！！路径很重要，否则实验代码可能报错
 ```
 ##  LightKG复现命令
+### 重要参数说明
+1. 数据集与评测标准
+```bash
+--dataset                   # 指定数据集
+--path                      # 数据集路径(需根据实际情况替换)
+--test_all                  # 是否采用全量测试
+--metric NDCG,HR,MRR,HIT,PRECISION   # 希望输出的指标
+
+```
+2. 自定义读取参数
+```bash
+--recbole_format            # 是否读取recbole数据集格式(读取原论文数据集需要)
+--reader                    # 指定reader
+```
+3. 普通训练参数
+```bash
+--emb_size                  # 嵌入向量维度
+--n_layers                  # GNN层数
+--lr                        # 学习率
+--l2                        # L2正则化系数
+--mess_dropout              # 消息丢弃率
+```
+4. LightKG模型参数
+```bash
+--cos_loss                  # 是否开启对比学习
+--num_neg                   # 对比训练负采样数量
+--user_loss                 # 用户损失权重
+--item_loss                 # 物品损失权重
+```
+### 运行指南
 
 进入到指定目录下
 ```bash
-cd ReChorus/src
+cd src
 ```
-
 1. 运行LightKG原论文数据集命令
 ```bash
-# 运行命令，注意因为ReChorus框架是静态参数配置故命令较长
-python -u main.py \
-  --model_name LightKG\
-  --dataset  lastfm\                  # 指定数据集
-  --path ../LightKG_dataset \         # 数据集路径(需根据实际情况替换)
-  --recbole_format 1 \                # 因为是读取原论文数据集所以需添加该参数
-  --test_all 1 \                      # 全量测试,与原论文数据集训练方式一致
-  --emb_size 64 \                     # 以下全为训练参数
-  --n_layers 2 \
-  --lr 0.0005 \
-  --l2 0.00005 \
-  --mess_dropout 0.1 \
-  --cos_loss 1 \
-  --user_loss 1e-08 \
-  --item_loss 1e-07 \
-  --early_stop 20 \
-  --batch_size 2048 \
-  --epoch 200 \
-  --num_neg 10 \
-  --metric NDCG,HR,MRR,HIT,PRECISION \       # 你希望输出的指标
-  2>&1 | tee ../log/lightkg_lastfm_$(date +"%Y%m%d_%H%M%S").log   
+python -u main.py   --model_name LightKG  --dataset  lastfm  --path ../LightKG_dataset    --recbole_format 1   --test_all 1   --emb_size 64   --n_layers 2   --lr 0.0005   --l2 0.00005   --mess_dropout 0.1  --cos_loss 1   --user_loss 1e-08   --item_loss 1e-07   --early_stop 20   --batch_size 2048   --epoch 200   --num_neg 10   --metric NDCG,HR,MRR,HIT,PRECISION
 ```
 
 2. 运行ReChorus框架数据集命令
 ```bash
-python -u main.py \
-  --model_name LightKG \              # 指定数据集
-  --dataset MovieLens_1M \
-  --reader LKGReader \                # 指定reader
-  --emb_size 64 \                     # 以下全为训练参数
-  --n_layers 2 \
-  --lr 0.0005 \
-  --l2 0.00005 \
-  --mess_dropout 0.1 \
-  --cos_loss 1 \
-  --user_loss 1e-08 \
-  --item_loss 1e-07 \
-  --early_stop 10 \
-  --batch_size 2048 \
-  --epoch 100 \
-  --num_neg 10 \
-  --metric NDCG,HR,MRR,HIT,PRECISION \       # 你希望输出的指标
-  2>&1 | tee ../log/lightkg_ml-1m_$(date +"%Y%d_%H%M%S").log
+python -u main.py   --model_name LightKG   --dataset Grocery_and_Gourmet_Food   --reader LKGReader   --emb_size 64  --n_layers 2   --lr 0.0005   --l2 0.00005   --mess_dropout 0.1   --cos_loss 1   --user_loss 1e-08   --item_loss 1e-07  --early_stop 10   --batch_size 2048   --epoch 100   --num_neg 10   --metric NDCG,HR,MRR,HIT,PRECISION
 ```
-！！！如果出现cuda out of memory，可以把batch_size调小试试，但是真的不是代码问题😭
+### 报错处理
+1. 如果出现`cuda out of memory`，这与跑代码的计算机算力有关系，代码对显存有要求（ml-1m数据集太大了），但是真的不是代码问题😭
+2. 如果出现`NotImplementedError: Cannot access storage of SparseTensorImpl`，设置命令行参数--num_workers为0
+3. 如果出现`AssertionError: relation overflow before graph: max=nan, n_rel=4`，删除数据集文件夹下的pkl文件重试
 ## 运行实验代码
-
 进入到指定目录下
 ```bash
-cd ReChorus/src
+cd src
 ```
-
 1. 消融实验 && 超参实验：进入`ablation_argument_draw.ipynb`文件运行
 2. 对比实验
 ```bash
 python pipeline.py
 ```
-
 3. 案例分析
 ```bash
 python case.py
 ```
 
 4. 嵌入空间的语义表征可视化
-```
+```bash
 python visual.py
 ```
 ## 项目核心架构
